@@ -1,0 +1,123 @@
+
+
+{{#if status.message}}
+  {{#if status.success}}
+    <div class="notification is-success">
+      <button class="delete"></button>
+      {{status.text}}
+    </div>
+  {{/if}}
+{{/if}}
+
+<h1 class="title">VLAN '{{results.id}}' Info</h1>
+
+<hr>
+
+<div class="column is-half">
+
+  <form method="post" action="{{results.id}}">
+  <div class="field">
+    <label class="label">Name</label>
+    <p class="control">
+      <input class="input" type="text" name="vlanName" placeholder="VLAN Name" value="{{results.name}}">
+    </p>
+  </div>
+
+  <div class="field">
+    <label class="label">Subnet</label>
+    <p class="control">
+      <input class="input" type="text" name="vlanSubnet" placeholder="Subnet" value="{{results.subnet}}">
+    </p>
+  </div>
+
+  <hr>
+
+  <h3 class="subtitle">Fixed IP Address Assignments</h3>
+
+  <table class="table is-narrow">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>IP</th>
+        <th>MAC Address</th>
+      </tr>
+    </thead>
+    <tbody>
+    {{#each fixedIpAssignments}}
+      <tr>
+        <td>
+          <div class="field">
+            <p class="control">
+              <input class="input" type="text" placeholder="Name" value="{{this.name}}">
+            </p>
+          </div>
+        </td>
+        <td>
+          <div class="field">
+            <p class="control">
+              <input class="input" type="text" placeholder="1.2.3.4" value="{{this.ip}}">
+            </p>
+          </div>
+        </td>
+        <td>
+          <div class="field">
+            <p class="control">
+              <input class="input" type="text" placeholder="00:aa:11:bb:22:cc" value="{{this.macAddress}}">
+            </p>
+          </div>
+        </td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+
+  <h3 class="subtitle">Reserved Ranges</h3>
+
+  <table class="table is-narrow">
+    <thead>
+      <tr>
+        <th>Start IP</th>
+        <th>End IP</th>
+        <th>Comment</th>
+      </tr>
+    </thead>
+    <tbody>
+    {{#each results.reservedIpRanges}}
+      <tr>
+        <td>
+          <div class="field">
+            <p class="control">
+              <input class="input" type="text" placeholder="1.0.0.1" value="{{this.start}}">
+            </p>
+          </div>
+        </td>
+        <td>
+          <div class="field">
+            <p class="control">
+              <input class="input" type="text" placeholder="1.0.0.19" value="{{this.end}}">
+            </p>
+          </div>
+        </td>
+        <td>
+          <div class="field">
+            <p class="control">
+              <input class="input" type="text" placeholder="00:aa:11:bb:22:cc" value="{{this.comment}}">
+            </p>
+          </div>
+        </td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
+
+  <div class="field is-grouped">
+    <p class="control">
+      <button class="button is-primary" type="submit" name="submitted" value="save">Submit</button>
+    </p>
+    <p class="control">
+      <button class="button is-link" type="submit" name="submitted" value="cancel">Cancel</button>
+    </p>
+  </div>
+
+  </form>
+</div>

@@ -1,0 +1,19 @@
+<h1 class="title">Networks List</h1>
+
+<table class="table is-narrow">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Subnet</th>
+      <th>&nbsp;</th>
+    </tr>
+  </thead>
+  <tbody>
+  {{#each results}}
+    <tr>
+      <td>{{this.name}}</td>
+      <td><a href="/networks/{{this.id}}">EDIT</a></td>
+    </tr>
+  {{/each}}
+  </tbody>
+</table>

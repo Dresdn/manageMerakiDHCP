@@ -5,10 +5,7 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var config = require('config');
-var request = require('request');
-
-require('request-debug')(request);
-
+var request = require('request-promise');
 var index = require('./routes/index');
 var users = require('./routes/users');
 var networks = require('./routes/networks');
@@ -35,14 +32,12 @@ app.set('view engine', 'hbs');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-//app.use(bodyParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
-app.use('/users', users);
 app.use('/networks', networks);
 
 // catch 404 and forward to error handler

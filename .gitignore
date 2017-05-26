@@ -1,3 +1,9 @@
+# Local Test Snippits
+test-*.js
+
+# Production Config File
+config/default.json
+
 # Logs
 logs
 *.log

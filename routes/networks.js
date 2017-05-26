@@ -1,29 +1,63 @@
-var express = require('express');
-var router = express.Router();
-var jsonQuery = require('json-query');
-
-// Form handing
-var form = require('express-form');
-var field = form.field;
+var express = require('express'),
+    router = express.Router(),
+    jsonQuery = require('json-query'),
+    form = require('express-form'),
+    debug = require('debug')('manageMerakiDHCP:server');
 
 // Status message
 var status = new Object();
 status.message = false;
 
-function badRequest(res, response, url) {
+function badRequest(error, res, url) {
   res.render('badRequest', {
-    message: "Unexpected Response: " + response.statusCode,
+    message: 'Unexpected Response: ' + res.req.statusCode,
     url: url,
-    code: response.statusCode
+    code: error.code
   });
 }
+
+async function postMerakiData(req, res, url, updateJson, callback) {
+
+  let response;
+  let dashboardUrl;
+
+  response = await req.request(url, {
+    method: 'HEAD',
+    followAllRedirects: true
+  }, function(error, response, body) {
+    dashboardUrl = response.request.href;
+    debug('HEAD Request Received:' + dashboardUrl);
+  });
+
+  var options = {
+    method: 'PUT',
+    url: dashboardUrl,
+    headers: 
+     { 'cache-control': 'no-cache',
+       accept: 'application/json',
+       'content-type': 'application/json'
+     },
+    json: true,
+    body: updateJson
+  };
+
+  debug('STARTING PUT REQUEST:\nURL: %s\nDATA: %O\n', dashboardUrl, updateJson);
+
+  response = await req.request(options, function (error, response, body) {
+    if (error) {
+      debug('PUT RECEIVED ERROR: %i', response.statusCode);
+      throw new Error(error);
+    };
+  });
+
+  debug('Doing Callback in function postMerakiData');
+  callback(req, res);
+};
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
 
-  //var url = "https://qrng.anu.edu.au/API/jsonI.php?length=4&type=uint8&#8217";
-
-  var url = "https://dashboard.meraki.com/api/v0/organizations/" + req.config.get('orgID') + "/networks";
+  var url = 'https://dashboard.meraki.com/api/v0/organizations/' + req.config.get('orgID') + '/networks';
 
   req.request({
     url: url
@@ -36,16 +70,15 @@ router.get('/', function(req, res, next) {
         res.render('networks', {
             results: networks,
         });
-        
       } else {
-        badRequest(res, response, url);
+        badRequest(error, res, url);
       }
   });
 });
 
 router.get('/:networkId', function(req, res, next) {
 
-  var url = "https://dashboard.meraki.com/api/v0/networks/" + req.params.networkId + "/vlans";
+  var url = 'https://dashboard.meraki.com/api/v0/networks/' + req.params.networkId + '/vlans';
 
   req.request({
     url: url
@@ -58,14 +91,14 @@ router.get('/:networkId', function(req, res, next) {
             networkID: req.params.networkId
         });
       } else {
-        badRequest(res, response, url);
+        badRequest(error, res, url);
       }
   });
 });
 
 router.get('/:networkId/:vlan', function(req, res, next) {
 
-  var url = "https://dashboard.meraki.com/api/v0/networks/" + req.params.networkId + "/vlans/" + req.params.vlan;
+  var url = 'https://dashboard.meraki.com/api/v0/networks/' + req.params.networkId + '/vlans/' + req.params.vlan;
 
   req.request({
     url: url
@@ -86,94 +119,39 @@ router.get('/:networkId/:vlan', function(req, res, next) {
             fixedIpAssignments: fixedIpAssignments
         });
       } else {
-        badRequest(res, response, url);
+        badRequest(error, res, url);
       }
   });
 });
 
+// Form handling
+var formField = form.field;
+
 router.post('/:networkId/:vlan', 
 
   form(
-    field("vlanName").trim().required().is(/^[a-z]+$/),
-    field("vlanSubnet").trim().required().is(/^[0-9]+$/)
+    formField('vlanName').trim().required().is(/^[a-z]+$/),
+    formField('vlanSubnet').trim().required().is(/^[0-9]+$/)
    ),
 
-
   function(req, res, next) {
-    console.log("Middleware!");
-    console.log("VLAN Name:", req.form.vlanName);
-    console.log("VLAN Subnet:", req.form.vlanSubnet);
-    next();
-  },
+    debug('VLAN Name:', req.form.vlanName);
+    debug('VLAN Subnet:', req.form.vlanSubnet);
 
-  function(req, res, next) {
+    var url = 'https://dashboard.meraki.com/api/v0/networks/' + req.params.networkId + '/vlans/' + req.params.vlan;
 
-    //Do stuff to the form data
-    status.message = true;
-
-    status.success = true;
-    status.text = "Changes successfully saved.";
-
-    var url = "https://dashboard.meraki.com/api/v0/networks/" + req.params.networkId + "/vlans/" + req.params.vlan;
-    //var updateJson = JSON.stringify({
+    // Set the JSON we want to update
     var updateJson = {
       name: req.form.vlanName,
       subnet: req.form.vlanSubnet
     };
 
-    console.log('Sending JSON:' + updateJson);
+    debug('Calling function postMerakiData');
+    postMerakiData(req, res, url, updateJson, function (req, res) {
 
-    req.request(
-        { method: 'PUT',
-          url: url,
-          json: updateJson,
-          followAllRedirects: true, // Follows Meraki's 302 redirect
-        },
-        function (error, response, body) {
-          if(response.statusCode == 201){
-            console.log('document saved as: ' + url)
-          } else {
-            console.log('error: '+ response.statusCode)
-            console.log(body)
-          }
-        }
-      );
-
-    next();
-  },
-
-  function(req, res, next) {
-
-    console.log("Getting VLAN data now...");
-
-    //Render the latest info
-    var url = "https://dashboard.meraki.com/api/v0/networks/" + req.params.networkId + "/vlans/" + req.params.vlan;
-
-    req.request({
-      url: url
-    }, function (error, response, body) {
-
-        if (!error && response.statusCode === 200) {
-
-          //Sanitize our fixedIpAssignments into an array
-          var fixedIpAssignments = [];
-
-          for(var x in body.fixedIpAssignments){
-            body.fixedIpAssignments[x].macAddress = x;
-            fixedIpAssignments.push(body.fixedIpAssignments[x])
-          };
-
-          // Render the page
-          res.render('vlan', {
-              results: body,
-              fixedIpAssignments: fixedIpAssignments,
-              status: status
-          });
-        } else {
-          badRequest(res, response, url);
-        }
+      // Redirect post-save
+      res.redirect('/networks/' + req.params.networkId);
     });
 });
-
 
 module.exports = router;

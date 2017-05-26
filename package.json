@@ -1,6 +1,6 @@
 {
   "name": "manageMerakiDHCP",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
@@ -16,10 +16,8 @@
     "hbs": "~4.0.1",
     "json-query": "^2.2.2",
     "morgan": "~1.8.2",
-    "request": "~2.81.0",
     "request-debug": "^0.2.0",
     "request-promise": "^4.2.1",
     "serve-favicon": "~2.4.3",
-    "wait.for": "^0.6.6"
   }
 }

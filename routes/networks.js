@@ -2,7 +2,7 @@ var express = require('express'),
     router = express.Router(),
     jsonQuery = require('json-query'),
     form = require('express-form'),
-    debug = require('debug')('manageMerakiDHCP:server');
+    debug = require('debug')('networks');
 
 // Status message
 var status = new Object();
@@ -131,19 +131,25 @@ router.post('/:networkId/:vlan',
 
   form(
     formField('vlanName').trim().required().is(/^[a-z]+$/),
-    formField('vlanSubnet').trim().required().is(/^[0-9]+$/)
+    formField('vlanSubnet').trim().required().is(/^[0-9]+$/),
+    formField('fixedIpAssignments').array().required()
    ),
 
   function(req, res, next) {
-    debug('VLAN Name:', req.form.vlanName);
-    debug('VLAN Subnet:', req.form.vlanSubnet);
-
     var url = 'https://dashboard.meraki.com/api/v0/networks/' + req.params.networkId + '/vlans/' + req.params.vlan;
+
+    var formattedFixedIpAssignments = {};
+    var data = req.form.fixedIpAssignments;
+
+    // Reformat data into proper JSON Meraki API expects to receive
+    for(var x in data){
+      mac = data[x].mac;
+      formattedFixedIpAssignments [mac] = { "ip": data[x].ip, "name": data[x].name};
+    };
 
     // Set the JSON we want to update
     var updateJson = {
-      name: req.form.vlanName,
-      subnet: req.form.vlanSubnet
+      fixedIpAssignments: formattedFixedIpAssignments
     };
 
     debug('Calling function postMerakiData');

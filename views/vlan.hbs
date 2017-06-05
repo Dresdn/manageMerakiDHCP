@@ -19,14 +19,14 @@
   <div class="field">
     <label class="label">Name</label>
     <p class="control">
-      <input class="input" type="text" name="vlanName" placeholder="VLAN Name" value="{{results.name}}">
+      <input class="input" type="text" name="vlanName" placeholder="VLAN Name" value="{{results.name}}" readonly>
     </p>
   </div>
 
   <div class="field">
     <label class="label">Subnet</label>
     <p class="control">
-      <input class="input" type="text" name="vlanSubnet" placeholder="Subnet" value="{{results.subnet}}">
+      <input class="input" type="text" name="vlanSubnet" placeholder="Subnet" value="{{results.subnet}}" readonly>
     </p>
   </div>
 
@@ -48,21 +48,21 @@
         <td>
           <div class="field">
             <p class="control">
-              <input class="input" type="text" placeholder="Name" value="{{this.name}}">
+              <input class="input" type="text" name="fixedIpAssignments[{{@index}}][name]" placeholder="Name" value="{{this.name}}" readonly>
             </p>
           </div>
         </td>
         <td>
           <div class="field">
             <p class="control">
-              <input class="input" type="text" placeholder="1.2.3.4" value="{{this.ip}}">
+              <input class="input" type="text" name="fixedIpAssignments[{{@index}}][ip]" placeholder="1.2.3.4" value="{{this.ip}}" readonly>
             </p>
           </div>
         </td>
         <td>
           <div class="field">
             <p class="control">
-              <input class="input" type="text" placeholder="00:aa:11:bb:22:cc" value="{{this.macAddress}}">
+              <input class="input" type="text" name="fixedIpAssignments[{{@index}}][mac]" placeholder="00:aa:11:bb:22:cc" value="{{this.macAddress}}">
             </p>
           </div>
         </td>
@@ -87,21 +87,21 @@
         <td>
           <div class="field">
             <p class="control">
-              <input class="input" type="text" placeholder="1.0.0.1" value="{{this.start}}">
+              <input class="input" type="text" placeholder="1.0.0.1" value="{{this.start}}" readonly>
             </p>
           </div>
         </td>
         <td>
           <div class="field">
             <p class="control">
-              <input class="input" type="text" placeholder="1.0.0.19" value="{{this.end}}">
+              <input class="input" type="text" placeholder="1.0.0.19" value="{{this.end}}" readonly>
             </p>
           </div>
         </td>
         <td>
           <div class="field">
             <p class="control">
-              <input class="input" type="text" placeholder="00:aa:11:bb:22:cc" value="{{this.comment}}">
+              <input class="input" type="text" placeholder="00:aa:11:bb:22:cc" value="{{this.comment}}" readonly>
             </p>
           </div>
         </td>

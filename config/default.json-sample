@@ -1,6 +1,5 @@
 {
-  // Access Keys
-  "Token": "testToken1234",
   "orgID": "123456",
-  "apiKey": "2aa54c5de7ed87acba22b98d9d929205"
+  "apiKey": "2aa54c5de7ed87acba22b98d9d929205",
+  "dashboardUrl": "https://n123.meraki.com"
 }
